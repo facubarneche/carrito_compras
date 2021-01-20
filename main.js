@@ -1,14 +1,3 @@
-
-//si el id ya esta push en arrId no lo llama
-const id = () => {
-    let arrId = [];
-    templateCards = document.querySelector('section');
-
-    let id = Math.floor(Math.random() * (151 - 1)) + 1;
-    arrId.includes(id) ? id = Math.floor(Math.random() * (151 - 1)) + 1 : arrId.push(id);
-    return id;
-}
-
 //crea el precio aleatorio
 const cost = () => {
     let cost = Math.floor(Math.random() * (20 - 5)) + 5;
@@ -56,28 +45,27 @@ const addCarrito = data => {
             for (i = 0; i < trs.length - 1; i++) {
                 if (trs[i].children[1].textContent === trs[trs.length - 1].children[1].textContent) {
                     cont--;
-                    trs[i].children[2].textContent = parseInt(trs[i].children[2].textContent) + 1;
+                    trs[i].children[2].textContent++;
                     trs[i].children[4].innerHTML = `$${parseInt(card.childNodes[3].outerText.split("").splice(1, 6).join("")) * parseInt(trs[i].children[2].textContent)}`
                     tbody.removeChild(tr)
                 }
             }
 
             //botones de suma y resta
-             sumar = document.querySelectorAll('.btn-success');
-             restar = document.querySelectorAll('.btn-danger');
-
-             sumar.forEach(boton => {
-                 boton.addEventListener('click', ()=>{
-                     console.log("suma")
-                 })
-                 
-             });
+            restar = document.querySelectorAll('.btn-danger');
+            sumar = document.querySelector('.btn-success');
             
-             restar.forEach(boton => {
-                boton.addEventListener('click', ()=>{
+            sumar.addEventListener('click',()=>{
+                console.log(sumar)
+                sumar.parentNode.previousElementSibling.innerHTML++;
+            })
+
+
+            restar.forEach(boton => {
+                boton.addEventListener('click', () => {
                     console.log("resta")
                 })
-                
+
             });
 
         });
@@ -90,10 +78,20 @@ document.addEventListener('DOMContentLoaded', () => {
 //llama a la api
 const fetchData = async () => {
     try {
-        for (let i = 0; i < 12; i++) {
-            id()
+        let arrId = [];
+        for (let i = 0; i < 2; i++) {
+            //si el id ya esta push en arrId no lo llama
+
+    templateCards = document.querySelector('section');
+    let id = Math.floor(Math.random() * (151 - 1)) + 1;
+
+    while(arrId.includes(id)){
+        id = Math.floor(Math.random() * (151 - 1)) + 1;
+    }
+    arrId.push(id);
+
             //llama a la api de pokemon, a un ID aleatorio
-            const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id()}`)
+            const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
             const data = await res.json()
             pintarCard(data)
         }
@@ -103,8 +101,3 @@ const fetchData = async () => {
         console.log(e)
     }
 }
-
-
-
-
-
