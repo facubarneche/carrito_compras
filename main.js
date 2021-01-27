@@ -17,83 +17,117 @@ pintarCard = data => {
     divs.classList.add('card', 'm-3', 'p-3', 'text-center');
     templateCards.appendChild(divs);
 }
+//refleja los cambios finales del carrito
+const final = () => {
+    const cantFinal = document.querySelector('.cantFinal');
+    const precioFinal = document.querySelector('.precioFinal');
+    const carroFinal = document.querySelectorAll('.carro');
+    let sumaTotal = 0;
+    let precioTotal = 0;
+
+    for (let i = 0; i < carroFinal.length; i++) {
+        sumaTotal = parseInt(sumaTotal) + parseInt(carroFinal[i].children[3].children[0].value);
+        precioTotal = parseInt(precioTotal) + parseInt(carroFinal[i].children[4].innerHTML.split('').slice(1, 10).join(''));
+        cantFinal.innerHTML = sumaTotal;
+        precioFinal.innerHTML = "$" + precioTotal;
+    }
+}
 
 //pinta el carrito cuando se toca el boton
-const addCarrito = data => {
-    let cont = 1, cant = 1;
-    const cardBody = document.querySelectorAll('.card-body');
-    //recorremos el html de cardbody
-    cardBody.forEach(card => {
-        //si se toca el boton, se agrega al carrito
-        card.children[2].addEventListener('click', () => {
-            const tbody = document.querySelector('tbody');
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-            <th scope="row">${cont++}</th>
-            <td>${card.childNodes[1].outerText}</td>
-            <td>${cant}</td>
+const addCarrito = () => {
+    const cards = document.querySelectorAll('.card');
+    const tBody = document.querySelector('tbody');
+    const fragment = document.createDocumentFragment();
+    let contador = 1;
+    let cardsTouch = [];
+
+    //recorre botones, cuando tocan el boton comprar se realiza la funcion
+    cards.forEach(e => {
+        e.childNodes[3].childNodes[5].addEventListener('click', () => {
+            //si el array incluye el elemento que pasamos en el else entra, selecciona los inputs de cantidad y los recorre buscando una igualdad en los id, si existe la igualdad suma 1 sin agregar un elemento nuevo y se le suma el precio multiplicado con la cantidad.
+            if (cardsTouch.includes(e)) {
+                const cantidad = document.querySelectorAll('.inputNumber');
+                cantidad.forEach(element => {
+                    if (element.id === e.childNodes[3].childNodes[5].id) {
+                        cantidad[element.id - 1].value++;
+                        cantidad[element.id - 1].parentElement.nextElementSibling.innerHTML = "$" + e.childNodes[3].childNodes[5].parentNode.childNodes[3].innerHTML.split('').slice(1, 10).join('') * cantidad[element.id - 1].value;
+                        final();
+                    }
+                });
+
+            } else {//se crea una linea de la tabla y se hace push el elemento a un array
+                const trHTML = document.createElement('tr');
+                trHTML.classList.add('carro')
+                e.childNodes[3].childNodes[5].setAttribute('id', contador);
+                trHTML.innerHTML =
+                    `<td> ${contador++}
+            <img class="carritoImages" src="${e.childNodes[1].src}" alt="${e.childNodes[1].alt}"></th>
+            <td>${e.childNodes[1].alt}</td>
+            <td>${e.childNodes[3].childNodes[3].innerHTML}</td>
             <td>
-            <button class="btn-success">+</button>
-            <button class="btn-danger">-</button>
+            <input type="number" value= 1 class="inputNumber" id="${contador - 1}"></input>
             </td>
-            <td>${card.childNodes[3].outerText}</td>`
-            tr.classList.add('items-card')
-            tbody.appendChild(tr);
-            trs = document.querySelectorAll('.items-card');
+            <td>${e.childNodes[3].childNodes[3].innerHTML}</td>
+            <td>
+            <button class="btn btn-danger">X</button>
+            </td>`
+                fragment.appendChild(trHTML);
+                tBody.appendChild(fragment);
+                cardsTouch.push(e);
+                final();
 
-            //recorre los elemento, si el nuevo ya existe, hace las sumas sin agregarlo al carrito
-            for (i = 0; i < trs.length - 1; i++) {
-                if (trs[i].children[1].textContent === trs[trs.length - 1].children[1].textContent) {
-                    cont--;
-                    trs[i].children[2].textContent++;
-                    trs[i].children[4].innerHTML = `$${parseInt(card.childNodes[3].outerText.split("").splice(1, 6).join("")) * parseInt(trs[i].children[2].textContent)}`
-                    tbody.removeChild(tr)
-                }
+                //input con la cantidad esperando el evento cambio
+                const cantidad = document.querySelectorAll('.inputNumber')
+                cantidad.forEach(element => {
+                    element.addEventListener('change', () => {
+                        cantidad[element.id - 1].parentElement.nextElementSibling.innerHTML = "$" + e.childNodes[3].childNodes[5].parentNode.childNodes[3].innerHTML.split('').slice(1, 10).join('') * cantidad[element.id - 1].value;
+                        //si con el input baja hasta 0 se limpia el elemento
+                        if (cantidad[element.id - 1].parentElement.nextElementSibling.innerHTML === "$0") {
+                            element.parentElement.parentElement.remove()
+                            final()
+                        }
+                        final();
+                    })
+                });
+                //click a borrar se limpia el elemento
+                const clear = document.querySelectorAll('.btn-danger');
+                clear.forEach(element => {
+                    element.addEventListener('click', () => {
+                        element.parentElement.parentElement.remove()
+                        final()
+                    })
+                });
             }
-
-            //botones de suma y resta
-            restar = document.querySelectorAll('.btn-danger');
-            sumar = document.querySelector('.btn-success');
-            
-            sumar.addEventListener('click',()=>{
-                console.log(sumar)
-                sumar.parentNode.previousElementSibling.innerHTML++;
-            })
-
-
-            restar.forEach(boton => {
-                boton.addEventListener('click', () => {
-                    console.log("resta")
-                })
-
-            });
-
         });
     });
-}
+};
+
 //llama a la api una vez el dom este cargado por completo
 document.addEventListener('DOMContentLoaded', () => {
     fetchData();
 })
+
 //llama a la api
 const fetchData = async () => {
     try {
         let arrId = [];
-        for (let i = 0; i < 2; i++) {
+        for (let i = 0; i < 4; i++) {
             //si el id ya esta push en arrId no lo llama
 
-    templateCards = document.querySelector('section');
-    let id = Math.floor(Math.random() * (151 - 1)) + 1;
+            templateCards = document.querySelector('section');
+            let id = Math.floor(Math.random() * (151 - 1)) + 1;
 
-    while(arrId.includes(id)){
-        id = Math.floor(Math.random() * (151 - 1)) + 1;
-    }
-    arrId.push(id);
+            while (arrId.includes(id)) {
+                id = Math.floor(Math.random() * (151 - 1)) + 1;
+            }
+            arrId.push(id);
 
             //llama a la api de pokemon, a un ID aleatorio
             const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
             const data = await res.json()
+
             pintarCard(data)
+
         }
         addCarrito();
 
