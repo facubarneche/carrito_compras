@@ -1,8 +1,20 @@
+//variables globales
+let contador = 1, cantFinal, precioFinal;
+let cardsTouch = [];
+
+
+//llama a la api una vez el dom este cargado por completo
+document.addEventListener('DOMContentLoaded', () => {
+    fetchData();
+})
+
+
 //crea el precio aleatorio
 const cost = () => {
     let cost = Math.floor(Math.random() * (20 - 5)) + 5;
     return cost
 }
+
 
 //pinta las cards
 pintarCard = data => {
@@ -17,10 +29,12 @@ pintarCard = data => {
     divs.classList.add('card', 'm-3', 'p-3', 'text-center');
     templateCards.appendChild(divs);
 }
+
+
 //refleja los cambios finales del carrito
 const final = () => {
-    const cantFinal = document.querySelector('.cantFinal');
-    const precioFinal = document.querySelector('.precioFinal');
+    cantFinal = document.querySelector('.cantFinal');
+    precioFinal = document.querySelector('.precioFinal');
     const carroFinal = document.querySelectorAll('.carro');
     let sumaTotal = 0;
     let precioTotal = 0;
@@ -33,13 +47,28 @@ const final = () => {
     }
 }
 
+
+const limpiarTodo = () => {
+    const vaciarCarro = document.querySelector('.limpiarTodo');
+
+    vaciarCarro.addEventListener('click', () => {
+        const tBody = document.querySelector('tbody');
+        tBody.innerHTML = '';
+        contador = 1;
+        cardsTouch = [];
+        cantFinal.innerHTML = 0;
+        precioFinal.innerHTML = "$" + 0
+    })
+}
+
+
 //pinta el carrito cuando se toca el boton
 const addCarrito = () => {
-    const cards = document.querySelectorAll('.card');
-    const tBody = document.querySelector('tbody');
-    const fragment = document.createDocumentFragment();
-    let contador = 1;
-    let cardsTouch = [];
+    cards = document.querySelectorAll('.card');
+    tBody = document.querySelector('tbody');
+    fragment = document.createDocumentFragment();
+    contador = 1;
+    cardsTouch = [];
 
     //recorre botones, cuando tocan el boton comprar se realiza la funcion
     cards.forEach(e => {
@@ -80,34 +109,29 @@ const addCarrito = () => {
                 const cantidad = document.querySelectorAll('.inputNumber')
                 cantidad.forEach(element => {
                     element.addEventListener('change', () => {
-                        cantidad[element.id - 1].parentElement.nextElementSibling.innerHTML = "$" + e.childNodes[3].childNodes[5].parentNode.childNodes[3].innerHTML.split('').slice(1, 10).join('') * cantidad[element.id - 1].value;
+                        cantidad[element.id - 1].parentElement.nextElementSibling.innerHTML = "$" + element.parentNode.previousElementSibling.innerHTML.split('').slice(1, 10).join('') * cantidad[element.id - 1].value;
                         //si con el input baja hasta 0 se limpia el elemento
                         if (cantidad[element.id - 1].parentElement.nextElementSibling.innerHTML === "$0") {
                             element.parentElement.parentElement.remove()
-                            final()
+                            cards = document.querySelectorAll('.card');
+                            tBody = document.querySelector('tbody');
+                            fragment = document.createDocumentFragment();
+                            contador = 1;
+                            cardsTouch = [];
                         }
                         final();
                     })
                 });
-                //click a borrar se limpia el elemento
-                const clear = document.querySelectorAll('.btn-danger');
-                clear.forEach(element => {
-                    element.addEventListener('click', () => {
-                        element.parentElement.parentElement.remove()
-                        final()
-                    })
-                });
             }
+
         });
     });
 };
 
-//llama a la api una vez el dom este cargado por completo
-document.addEventListener('DOMContentLoaded', () => {
-    fetchData();
-})
 
-//llama a la api
+
+
+//llama a la api y se le pasa las funciones creadas anteriormente
 const fetchData = async () => {
     try {
         let arrId = [];
@@ -130,6 +154,7 @@ const fetchData = async () => {
 
         }
         addCarrito();
+        limpiarTodo();
 
     } catch (e) {
         console.log(e)
