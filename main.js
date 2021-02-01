@@ -24,7 +24,7 @@ pintarCard = data => {
 <div class="card-body">
 <h5 class="card-title">${data.forms[0].name}</h5>
 <p class="card-text">$${cost()}</p>
-<button class="btn btn-primary w-100">Comprar</button>
+<button type="button" class="form-control btn btn-primary">Comprar</button>
 </div>`
     divs.classList.add('card', 'm-3', 'p-3', 'text-center');
     templateCards.appendChild(divs);
@@ -72,6 +72,7 @@ const addCarrito = () => {
 
     //recorre botones, cuando tocan el boton comprar se realiza la funcion
     cards.forEach(e => {
+        
         e.childNodes[3].childNodes[5].addEventListener('click', () => {
             //si el array incluye el elemento que pasamos en el else entra, selecciona los inputs de cantidad y los recorre buscando una igualdad en los id, si existe la igualdad suma 1 sin agregar un elemento nuevo y se le suma el precio multiplicado con la cantidad.
             if (cardsTouch.includes(e)) {
@@ -97,9 +98,7 @@ const addCarrito = () => {
             <input type="number" value= 1 class="inputNumber" id="${contador - 1}"></input>
             </td>
             <td>${e.childNodes[3].childNodes[3].innerHTML}</td>
-            <td>
-            <button class="btn btn-danger">X</button>
-            </td>`
+            <td></td>`
                 fragment.appendChild(trHTML);
                 tBody.appendChild(fragment);
                 cardsTouch.push(e);
@@ -110,20 +109,11 @@ const addCarrito = () => {
                 cantidad.forEach(element => {
                     element.addEventListener('change', () => {
                         cantidad[element.id - 1].parentElement.nextElementSibling.innerHTML = "$" + element.parentNode.previousElementSibling.innerHTML.split('').slice(1, 10).join('') * cantidad[element.id - 1].value;
-                        //si con el input baja hasta 0 se limpia el elemento
-                        if (cantidad[element.id - 1].parentElement.nextElementSibling.innerHTML === "$0") {
-                            element.parentElement.parentElement.remove()
-                            cards = document.querySelectorAll('.card');
-                            tBody = document.querySelector('tbody');
-                            fragment = document.createDocumentFragment();
-                            contador = 1;
-                            cardsTouch = [];
-                        }
+                        
                         final();
                     })
                 });
             }
-
         });
     });
 };
