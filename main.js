@@ -125,7 +125,7 @@ const addCarrito = () => {
 const fetchData = async () => {
     try {
         let arrId = [];
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 12; i++) {
             //si el id ya esta push en arrId no lo llama
 
             templateCards = document.querySelector('section');
